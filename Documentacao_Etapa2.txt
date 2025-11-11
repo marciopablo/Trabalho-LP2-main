@@ -1,0 +1,32 @@
+### Documentação da Etapa 2: Repositórios e Persistência
+
+O trabalho da Etapa 2 (Repositórios e Persistência) está concluído. A camada de acesso a dados (CRUD) está pronta para ser usada.
+
+#### O que foi feito:
+
+1.  **Criação do Pacote `repository`**:
+    * Todos os arquivos de persistência estão localizados em `src/biblioteca/repository/`.
+
+2.  **Interface `Repositorio<T>`**:
+    * Foi criada a interface genérica `Repositorio.java`. Ela define o contrato padrão de CRUD (`adicionar`, `buscaPorId`, `atualizar`, `remover`, `listaTodos`) que todas as classes de repositório devem seguir.
+    * Ela também já declara o lançamento das exceções `ValidacaoException` e `EntidadeNaoEncontradaException` nos métodos apropriados.
+
+3.  **Implementação de `MemoriaRepositorio<T>`**:
+    * Criei o `MemoriaRepositorio.java`.
+    * **Por quê?** Ele serve para testes rápidos, salvando os dados apenas em um `Map` na memória, sem ler ou escrever em arquivos.
+    * **Mudança Importante:** Para fazer este repositório genérico funcionar (especificamente para poder usar `entidade.getId()` e `entidade.setId()`), foi necessário fazer uma pequena alteração no trabalho do Integrante 1:
+        * Criei a interface `EntidadeBase.java` no pacote `model`.
+        * Fiz as classes `Livro`, `Categoria` e `Usuario` implementarem essa interface (`implements EntidadeBase`).
+        * O `MemoriaRepositorio` agora usa a assinatura `public class MemoriaRepositorio<T extends EntidadeBase>...` para garantir que ele só pode ser usado com entidades que tenham um ID.
+
+4.  **Implementação da Persistência em Arquivo (CSV)**:
+    * Em vez de um `ArquivoRepositorio<T>` genérico (que seria muito complexo pela dificuldade de converter `T` para CSV), criei **classes específicas** para cada entidade, conforme a proposta.
+    * `CategoriaRepositorioArquivo.java`: Faz o CRUD para `Categoria`, lendo e salvando em `data/categorias.csv`.
+    * `LivroRepositorioArquivo.java`: Faz o CRUD para `Livro`, lendo e salvando em `data/livros.csv`. Ele lida corretamente com a conversão do `Enum Livro.Status`.
+    * `UsuarioRepositorioArquivo.java`: Faz o CRUD para `Usuario`. **Este é o mais importante para você**, pois ele lida com o polimorfismo (Aluno, Professor, Funcionario).
+        * **Como funciona:** Ele adiciona uma coluna "TIPO" no arquivo `data/usuarios.csv` (ex: "ALUNO", "PROFESSOR"). Ao ler (`deCsv`), ele usa um `switch` para instanciar a classe correta (`new Aluno(...)`, `new Professor(...)`, etc.). Ao escrever (`paraCsv`), ele usa `instanceof` para salvar o "TIPO" e o campo correto (matrícula, siape ou cargo).
+
+5.  **Criação do Pacote `data/`**:
+    * Criei a pasta `data/` na raiz do projeto.
+    * Populei ela com os arquivos CSV de exemplo: `categorias.csv`, `livros.csv` e `usuarios.csv`, conforme a Tarefa 4. Nossos repositórios de arquivo já estão lendo e usando esses dados.
+
